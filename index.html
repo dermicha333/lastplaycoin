@@ -3,429 +3,452 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>$LPLAY — The Last Play</title>
+  <title>Last Play — $LP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --g: #c8ff00;       /* acid green */
-      --r: #ff3131;       /* live red */
-      --dark: #0c0c0c;
-      --card: #141414;
-      --border: #222;
-      --text: #e0e0e0;
+      --g: #00ff6a;
+      --dg: #00c44f;
+      --dark: #080810;
+      --card: #0f0f1a;
+      --border: #1a1a2e;
+      --r: #ff3b3b;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
-
-    html { scroll-behavior: smooth; }
-
+    html { scroll-behavior:smooth; }
     body {
-      background: var(--dark);
-      color: var(--text);
-      font-family: 'Space Grotesk', sans-serif;
-      overflow-x: hidden;
+      background:var(--dark);
+      color:#fff;
+      font-family:'Inter',sans-serif;
+      overflow-x:hidden;
     }
-
-    /* ── NOISE OVERLAY ── */
-    body::before {
-      content:'';
-      position:fixed; inset:0; z-index:9997; pointer-events:none;
-      opacity:0.025;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    /* scanlines */
+    body::after {
+      content:''; position:fixed; inset:0;
+      background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);
+      pointer-events:none; z-index:9997;
     }
 
     /* ── INTRO ── */
     #intro {
       position:fixed; inset:0; background:#000;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      z-index:9999; gap:24px;
-      animation: introOut 0.8s ease 4s forwards;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      z-index:9999; gap:20px;
+      animation:introOut 0.7s ease 4.2s forwards;
     }
-    @keyframes introOut { to { opacity:0; pointer-events:none; } }
-
+    @keyframes introOut { to{opacity:0;pointer-events:none} }
     .intro-rec {
       display:flex; align-items:center; gap:8px;
-      font-size:0.7rem; letter-spacing:5px; color:#555;
-      text-transform:uppercase;
-      animation: fi 0.4s ease 0.2s both;
+      font-size:0.6rem; letter-spacing:5px; color:#333; text-transform:uppercase;
+      animation:fi 0.3s ease 0.2s both;
     }
-    .intro-rec-dot {
-      width:8px; height:8px; background:var(--r);
-      border-radius:50%; animation:blink 0.8s infinite;
-    }
+    .rdot { width:8px; height:8px; background:var(--r); border-radius:50%; animation:blink 0.9s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-    .intro-play-circle {
-      width:120px; height:120px;
-      border:3px solid var(--g);
-      border-radius:50%;
+    .intro-circle {
+      width:110px; height:110px; border-radius:50%;
+      border:2px solid var(--g);
       display:flex; align-items:center; justify-content:center;
-      box-shadow: 0 0 40px rgba(200,255,0,0.2);
-      animation: fi 0.5s cubic-bezier(.34,1.56,.64,1) 0.7s both;
+      box-shadow:0 0 30px rgba(0,255,106,0.2);
+      animation:fi 0.5s cubic-bezier(.34,1.56,.64,1) 0.6s both;
     }
-    .intro-play-circle svg { margin-left:8px; }
+    .intro-circle svg { margin-left:7px; }
+    .intro-name {
+      font-family:'Press Start 2P',monospace;
+      font-size:clamp(1rem,3vw,1.5rem);
+      color:var(--g); letter-spacing:4px;
+      text-shadow:0 0 20px var(--g);
+      animation:fi 0.5s ease 1.1s both, glow 1s ease 1.6s infinite;
+    }
+    @keyframes glow { 0%,100%{text-shadow:0 0 20px var(--g)} 50%{text-shadow:0 0 50px var(--g),0 0 80px var(--g)} }
+    .intro-ticker-line {
+      font-size:0.55rem; letter-spacing:3px; color:#333; text-transform:uppercase;
+      animation:fi 0.4s ease 1.7s both;
+    }
+    .ibar { width:180px; height:4px; background:#111; border-radius:2px; overflow:hidden; animation:fi 0.3s ease 2s both; }
+    .ibar-fill { height:100%; background:linear-gradient(90deg,var(--g),var(--dg)); animation:load 1.3s ease 2.2s both; }
+    @keyframes load { from{width:0} to{width:100%} }
+    @keyframes fi { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
 
-    .intro-tagline {
-      font-family:'Bebas Neue',sans-serif;
-      font-size:clamp(1.5rem,5vw,2.8rem);
-      letter-spacing:8px; color:#fff;
-      animation: fi 0.5s ease 1.3s both;
-      text-align:center;
-    }
-    .intro-tagline span { color:var(--g); }
+    /* ── LAYOUT SHELL ── */
+    #main { opacity:0; animation:fi2 0.8s ease 4.8s forwards; }
+    @keyframes fi2 { to{opacity:1;transform:none} }
 
-    .intro-loading {
-      font-size:0.68rem; letter-spacing:4px; color:#333;
-      animation: fi 0.4s ease 1.8s both;
+    /* ── TOP TICKER BAR ── */
+    .top-ticker {
+      background:#000;
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:stretch;
+      overflow:hidden; white-space:nowrap; height:36px;
     }
-    .intro-dots span {
-      animation: dotFade 1.2s infinite;
-      color:var(--g);
+    .tt-label {
+      background:var(--g); color:#000;
+      font-family:'Press Start 2P',monospace;
+      font-size:0.5rem; letter-spacing:2px;
+      padding:0 16px;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0; white-space:nowrap;
     }
-    .intro-dots span:nth-child(2) { animation-delay:0.2s; }
-    .intro-dots span:nth-child(3) { animation-delay:0.4s; }
-    @keyframes dotFade { 0%,100%{opacity:0.2} 50%{opacity:1} }
-
-    @keyframes fi {
-      from { opacity:0; transform:translateY(12px) scale(0.95); }
-      to   { opacity:1; transform:translateY(0) scale(1); }
+    .tt-scroll {
+      flex:1; overflow:hidden;
+      display:flex; align-items:center;
+      position:relative;
     }
-
-    /* ── MAIN ── */
-    #main { opacity:0; animation: mainShow 0.8s ease 4.6s forwards; }
-    @keyframes mainShow { to { opacity:1; } }
+    .tt-inner {
+      display:inline-block;
+      animation:ttick 28s linear infinite;
+      font-size:0.55rem; letter-spacing:3px; color:#444; text-transform:uppercase;
+      font-family:'Press Start 2P',monospace;
+      padding-left:40px;
+    }
+    @keyframes ttick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .tt-inner .hi { color:var(--g); }
+    .tt-sep { margin:0 18px; color:#222; }
 
     /* ── NAV ── */
     nav {
       display:flex; justify-content:space-between; align-items:center;
-      padding:20px 60px;
-      position:sticky; top:0;
-      background:rgba(12,12,12,0.9);
-      backdrop-filter:blur(20px);
+      padding:16px 48px;
       border-bottom:1px solid var(--border);
+      position:sticky; top:0;
+      background:rgba(8,8,16,0.95);
+      backdrop-filter:blur(14px);
       z-index:100;
     }
     .nav-logo {
-      font-family:'Bebas Neue',sans-serif;
-      font-size:1.6rem; letter-spacing:5px; color:var(--g);
+      font-family:'Press Start 2P',monospace;
+      font-size:0.85rem; color:var(--g); letter-spacing:2px;
     }
-    .nav-links { display:flex; gap:32px; list-style:none; }
-    .nav-links a {
-      color:#555; text-decoration:none; font-size:0.82rem;
-      letter-spacing:2px; text-transform:uppercase;
-      transition:color 0.2s;
-    }
+    .nav-logo span { color:#fff; }
+    .nav-links { display:flex; gap:28px; list-style:none; }
+    .nav-links a { color:#444; text-decoration:none; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; transition:color 0.2s; }
     .nav-links a:hover { color:var(--g); }
-    .nav-buy {
-      background:var(--g); color:#000; font-weight:700;
-      font-size:0.78rem; padding:10px 24px; border-radius:6px;
-      text-decoration:none; letter-spacing:2px; text-transform:uppercase;
-      transition:transform 0.15s, box-shadow 0.15s;
+    .nav-cta {
+      background:var(--g); color:#000;
+      font-family:'Press Start 2P',monospace;
+      font-size:0.6rem; padding:10px 20px; border-radius:6px;
+      text-decoration:none; letter-spacing:1px;
+      transition:transform 0.2s, box-shadow 0.2s;
     }
-    .nav-buy:hover { transform:translateY(-2px); box-shadow:0 4px 20px rgba(200,255,0,0.3); }
+    .nav-cta:hover { transform:translateY(-2px); box-shadow:0 0 20px rgba(0,255,106,0.35); }
 
     /* ── HERO ── */
     .hero {
-      min-height:100vh;
+      display:grid; grid-template-columns:1fr 1fr;
+      min-height:92vh; position:relative; overflow:hidden;
+    }
+
+    /* LEFT col */
+    .hero-left {
       display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      padding:80px 20px 60px;
-      position:relative; overflow:hidden; gap:0;
+      justify-content:center; padding:80px 60px 80px 60px;
+      position:relative; z-index:1;
+      border-right:1px solid var(--border);
     }
+    .live-badge {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(255,59,59,0.08); border:1px solid rgba(255,59,59,0.2);
+      color:var(--r); font-size:0.6rem; letter-spacing:3px;
+      padding:6px 14px; border-radius:20px; text-transform:uppercase;
+      margin-bottom:36px; align-self:flex-start;
+    }
+    .live-badge .ldot { width:6px; height:6px; background:var(--r); border-radius:50%; animation:blink 1s infinite; }
 
-    /* Grid lines bg */
-    .hero::after {
-      content:'';
-      position:absolute; inset:0; pointer-events:none;
-      background-image:
-        linear-gradient(rgba(200,255,0,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(200,255,0,0.03) 1px, transparent 1px);
-      background-size:60px 60px;
+    .hero-hook {
+      font-family:'Press Start 2P',monospace;
+      font-size:0.65rem; color:#333; letter-spacing:2px;
+      line-height:2.2; margin-bottom:24px;
     }
+    .hero-hook em { color:#555; font-style:normal; }
+    .hero-hook strong { color:var(--g); }
 
-    .hero-top-label {
-      display:flex; align-items:center; gap:10px;
-      font-size:0.7rem; letter-spacing:4px; text-transform:uppercase;
-      color:#444; margin-bottom:40px; position:relative; z-index:1;
-    }
-    .hero-top-label .dot-live {
-      width:7px; height:7px; background:var(--r);
-      border-radius:50%; animation:blink 1s infinite;
-    }
-    .hero-top-label .live-text { color:var(--r); }
-
-    /* THE PLAY BUTTON — main hero element */
-    .play-wrap {
-      position:relative; cursor:pointer;
-      margin-bottom:50px; z-index:1;
-    }
-    .play-ring {
-      width:220px; height:220px;
-      border-radius:50%;
-      border:2px solid rgba(200,255,0,0.2);
-      position:absolute; top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      animation:ringPulse 2s ease-in-out infinite;
-    }
-    .play-ring:nth-child(2) { animation-delay:0.5s; width:260px; height:260px; }
-    .play-ring:nth-child(3) { animation-delay:1s;   width:300px; height:300px; }
-    @keyframes ringPulse {
-      0%,100% { opacity:0.5; transform:translate(-50%,-50%) scale(1); }
-      50%      { opacity:0.1; transform:translate(-50%,-50%) scale(1.05); }
-    }
-    .play-btn-main {
-      width:160px; height:160px;
-      background:var(--g);
-      border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      position:relative; z-index:2;
-      transition:transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 0 60px rgba(200,255,0,0.25);
-    }
-    .play-btn-main svg { margin-left:10px; }
-    .play-wrap:hover .play-btn-main {
-      transform:scale(1.08);
-      box-shadow:0 0 80px rgba(200,255,0,0.5);
-    }
-    /* margin for rings */
-    .play-outer {
-      width:320px; height:320px;
-      display:flex; align-items:center; justify-content:center;
-      position:relative;
-    }
-
-    /* HERO TEXT */
-    .hero-text-wrap {
-      text-align:center; position:relative; z-index:1;
-    }
-    .hero-eyeline {
-      font-size:0.78rem; color:#555; letter-spacing:3px;
-      text-transform:uppercase; margin-bottom:14px;
-      font-style:italic;
-    }
-    .hero-eyeline em { color:#888; font-style:normal; }
     .hero-h1 {
-      font-family:'Bebas Neue',sans-serif;
-      font-size:clamp(4rem,12vw,9rem);
-      line-height:0.85; letter-spacing:4px;
-      margin-bottom:16px;
+      font-family:'Press Start 2P',monospace;
+      font-size:clamp(1.8rem,4vw,3.2rem);
+      line-height:1.2; letter-spacing:2px;
+      margin-bottom:8px;
     }
-    .hero-h1 .w1 { color:var(--g); display:block; }
-    .hero-h1 .w2 { color:#fff; display:block; }
-    .hero-h1 .w3 {
-      color:transparent;
-      -webkit-text-stroke:2px #333;
-      display:block; font-size:0.55em; letter-spacing:14px;
+    .hero-h1 .last { color:#fff; display:block; }
+    .hero-h1 .play { color:var(--g); display:block; text-shadow:0 0 30px rgba(0,255,106,0.3); }
+
+    .hero-ticker-line {
+      display:flex; align-items:center; gap:0;
+      margin:28px 0; overflow:hidden;
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      padding:10px 0;
     }
+    .htl-inner {
+      display:inline-block;
+      animation:htlScroll 18s linear infinite;
+      font-family:'Press Start 2P',monospace;
+      font-size:0.5rem; color:#333; letter-spacing:3px; white-space:nowrap;
+    }
+    @keyframes htlScroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .htl-hi { color:var(--g); }
+
     .hero-desc {
-      font-size:1rem; color:#555; max-width:500px;
-      margin:0 auto 28px; line-height:1.8;
+      font-size:0.9rem; color:#555; line-height:1.9; max-width:400px; margin-bottom:36px;
     }
     .hero-desc strong { color:#aaa; }
 
-    .hero-cta { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
-    .btn-g {
-      background:var(--g); color:#000; font-weight:700;
-      font-size:0.85rem; padding:14px 36px; border-radius:6px;
-      text-decoration:none; letter-spacing:2px; text-transform:uppercase;
-      transition:transform 0.15s, box-shadow 0.15s;
+    .hero-btns { display:flex; gap:12px; flex-wrap:wrap; }
+    .btn-p {
+      background:var(--g); color:#000;
+      font-family:'Press Start 2P',monospace;
+      font-size:0.58rem; padding:14px 24px; border-radius:8px;
+      text-decoration:none; letter-spacing:1px;
+      transition:transform 0.2s, box-shadow 0.2s;
     }
-    .btn-g:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(200,255,0,0.3); }
-    .btn-ghost {
-      color:#fff; font-weight:700; font-size:0.85rem;
-      padding:14px 36px; border-radius:6px;
-      border:2px solid #333; text-decoration:none;
-      letter-spacing:2px; text-transform:uppercase;
-      transition:border-color 0.15s, color 0.15s;
+    .btn-p:hover { transform:translateY(-2px); box-shadow:0 0 24px rgba(0,255,106,0.4); }
+    .btn-o {
+      color:var(--g); font-size:0.58rem;
+      font-family:'Press Start 2P',monospace;
+      padding:14px 24px; border-radius:8px;
+      border:2px solid rgba(0,255,106,0.3); text-decoration:none;
+      transition:border-color 0.2s, background 0.2s;
     }
-    .btn-ghost:hover { border-color:var(--g); color:var(--g); }
+    .btn-o:hover { border-color:var(--g); background:rgba(0,255,106,0.05); }
 
-    /* ── MARQUEE ── */
-    .marquee-wrap {
-      overflow:hidden; white-space:nowrap; padding:14px 0;
-      border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;
-      background:#0f0f0f;
+    /* RIGHT col — play button + chat bubbles */
+    .hero-right {
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:60px 40px; position:relative; overflow:hidden;
+      background:radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,255,106,0.04) 0%, transparent 70%);
     }
-    .marquee-inner {
-      display:inline-block;
-      animation:marquee 30s linear infinite;
-      font-family:'Bebas Neue',sans-serif;
-      font-size:0.85rem; letter-spacing:5px;
-    }
-    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-    .msep { margin:0 28px; color:var(--g); }
-    .marquee-inner .highlight { color:var(--g); }
 
-    /* ── NOSTALGIA STRIP ── */
-    .nostalgia {
-      display:grid; grid-template-columns:1fr 1fr;
-      max-width:1000px; margin:0 auto;
-      padding:100px 40px; gap:80px; align-items:center;
+    /* floating chat */
+    .chat-float {
+      position:absolute; inset:0; pointer-events:none; overflow:hidden;
     }
-    .nostalgia-left h2 {
-      font-family:'Bebas Neue',sans-serif;
-      font-size:clamp(2.5rem,5vw,4rem);
-      letter-spacing:3px; line-height:1.1; margin-bottom:20px;
-    }
-    .nostalgia-left h2 .dim { color:#333; }
-    .nostalgia-left h2 .bright { color:#fff; }
-    .nostalgia-left h2 .accent { color:var(--g); }
-    .nostalgia-left p {
-      color:#555; font-size:0.95rem; line-height:1.9; max-width:380px;
-    }
-    .nostalgia-left p strong { color:#aaa; }
-
-    .nostalgia-right {
-      display:flex; flex-direction:column; gap:12px;
-    }
-    /* Old vs Now cards */
-    .then-now {
-      display:grid; grid-template-columns:1fr 1fr; gap:12px;
-    }
-    .tn-card {
+    .cf {
+      position:absolute;
       background:var(--card); border:1px solid var(--border);
-      border-radius:10px; padding:20px;
+      border-radius:8px; padding:6px 12px;
+      font-size:0.65rem; color:#2a2a3a; white-space:nowrap;
+      animation:cfloat linear infinite;
     }
-    .tn-card.then { border-color:#222; }
-    .tn-card.now  { border-color:rgba(200,255,0,0.25); background:#141a00; }
-    .tn-label {
-      font-size:0.62rem; letter-spacing:3px; text-transform:uppercase;
-      margin-bottom:8px;
+    @keyframes cfloat {
+      from{transform:translateY(110%);opacity:0}
+      8%{opacity:1}
+      88%{opacity:0.3}
+      to{transform:translateY(-20%);opacity:0}
     }
-    .tn-card.then .tn-label { color:#444; }
-    .tn-card.now  .tn-label { color:var(--g); }
-    .tn-text { font-size:0.88rem; line-height:1.6; }
-    .tn-card.then .tn-text { color:#444; }
-    .tn-card.now  .tn-text { color:#ccc; }
+
+    /* big play button */
+    .play-outer {
+      position:relative; width:260px; height:260px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; z-index:2;
+    }
+    .p-ring {
+      position:absolute; border-radius:50%;
+      border:1px solid rgba(0,255,106,0.15);
+      animation:pring 2.5s ease-in-out infinite;
+    }
+    .p-ring:nth-child(1) { width:200px;height:200px; }
+    .p-ring:nth-child(2) { width:240px;height:240px; animation-delay:0.5s; }
+    .p-ring:nth-child(3) { width:280px;height:280px; animation-delay:1s; border-color:rgba(0,255,106,0.07); }
+    @keyframes pring {
+      0%,100%{opacity:0.6;transform:scale(1)}
+      50%{opacity:0.15;transform:scale(1.04)}
+    }
+    .p-btn {
+      width:150px; height:150px; background:var(--g);
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      position:relative; z-index:3;
+      box-shadow:0 0 50px rgba(0,255,106,0.2);
+      transition:transform 0.2s, box-shadow 0.2s;
+    }
+    .p-btn svg { margin-left:10px; }
+    .play-outer:hover .p-btn {
+      transform:scale(1.08);
+      box-shadow:0 0 70px rgba(0,255,106,0.45);
+    }
+    .play-label {
+      margin-top:24px;
+      font-family:'Press Start 2P',monospace;
+      font-size:0.55rem; letter-spacing:3px; color:#333; text-align:center;
+    }
+    .play-label em { color:var(--g); font-style:normal; }
+
+    /* ── RUNNING TEXT LINE (full width) ── */
+    .run-line {
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      overflow:hidden; white-space:nowrap;
+      padding:12px 0;
+      background:var(--card);
+    }
+    .rl-inner {
+      display:inline-block;
+      animation:rltick 22s linear infinite;
+      font-family:'Press Start 2P',monospace;
+      font-size:0.6rem; letter-spacing:3px; color:#222;
+    }
+    @keyframes rltick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .rl-hi { color:var(--g); }
+    .rl-sep { margin:0 20px; color:#1a1a2e; }
+
+    /* ── LORE / CHAT SECTION ── */
+    .lore-wrap {
+      display:grid; grid-template-columns:1fr 1fr;
+      max-width:1100px; margin:0 auto;
+      padding:80px 40px; gap:60px; align-items:start;
+    }
+    .lore-left {
+      position:sticky; top:120px;
+    }
+    .section-tag { font-size:0.6rem; letter-spacing:4px; color:var(--g); text-transform:uppercase; margin-bottom:14px; }
+    .lore-left h2 {
+      font-family:'Press Start 2P',monospace;
+      font-size:clamp(0.9rem,2vw,1.3rem);
+      letter-spacing:2px; line-height:1.7; margin-bottom:20px;
+    }
+    .lore-left h2 em { color:var(--g); font-style:normal; }
+    .lore-left p { font-size:0.88rem; color:#555; line-height:1.9; }
+    .lore-left p strong { color:#aaa; }
+
+    .lore-right { display:flex; flex-direction:column; gap:14px; }
+    .chat-msg {
+      display:flex; gap:12px; align-items:flex-start;
+      animation:fi 0.5s ease both;
+    }
+    .chat-msg:nth-child(1){animation-delay:0.1s}
+    .chat-msg:nth-child(2){animation-delay:0.25s}
+    .chat-msg:nth-child(3){animation-delay:0.4s}
+    .chat-msg:nth-child(4){animation-delay:0.55s}
+    .chat-msg:nth-child(5){animation-delay:0.7s}
+    .chat-msg.r { flex-direction:row-reverse; }
+    .av {
+      width:34px; height:34px; border-radius:50%;
+      background:var(--card); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.9rem; flex-shrink:0;
+    }
+    .bubble {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:0 10px 10px 10px;
+      padding:10px 16px; flex:1;
+    }
+    .chat-msg.r .bubble { border-radius:10px 0 10px 10px; }
+    .bname { font-size:0.65rem; color:var(--g); margin-bottom:4px; letter-spacing:1px; }
+    .chat-msg.r .bname { color:#444; text-align:right; }
+    .btext { font-size:0.85rem; color:#888; line-height:1.6; }
+    .btext strong { color:#ccc; }
 
     /* ── STATS ── */
-    .stats-row {
-      display:grid; grid-template-columns:repeat(4,1fr);
-      max-width:900px; margin:0 auto;
-      padding:0 40px 80px; gap:1px;
+    .stats-wrap {
       border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
     }
-    .stat-item {
-      padding:32px 24px; text-align:center;
+    .stats {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      max-width:1100px; margin:0 auto;
+    }
+    .stat {
+      padding:40px 24px; text-align:center;
       border-right:1px solid var(--border);
       transition:background 0.2s;
     }
-    .stat-item:last-child { border-right:none; }
-    .stat-item:hover { background:var(--card); }
-    .stat-num {
-      font-family:'Bebas Neue',sans-serif;
-      font-size:2.4rem; color:var(--g);
-      letter-spacing:2px; margin-bottom:6px;
+    .stat:last-child { border-right:none; }
+    .stat:hover { background:var(--card); }
+    .snum {
+      font-family:'Press Start 2P',monospace;
+      font-size:1.6rem; color:var(--g); margin-bottom:10px;
     }
-    .stat-lbl { font-size:0.7rem; color:#444; letter-spacing:3px; text-transform:uppercase; }
+    .slbl { font-size:0.6rem; color:#444; letter-spacing:3px; text-transform:uppercase; }
 
     /* ── HOW TO BUY ── */
     .htb {
-      max-width:1000px; margin:0 auto; padding:80px 40px;
+      max-width:1100px; margin:0 auto; padding:80px 40px;
       border-top:1px solid var(--border);
-    }
-    .section-label {
-      font-size:0.68rem; letter-spacing:4px; color:var(--g);
-      text-transform:uppercase; margin-bottom:14px;
     }
     .htb h2 {
-      font-family:'Bebas Neue',sans-serif;
-      font-size:clamp(2rem,5vw,3.5rem);
-      letter-spacing:4px; margin-bottom:40px;
+      font-family:'Press Start 2P',monospace;
+      font-size:clamp(0.9rem,2vw,1.3rem);
+      letter-spacing:2px; margin-bottom:40px; line-height:1.6;
     }
-    .htb-grid {
-      display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-      gap:1px; background:var(--border);
-      border:1px solid var(--border); border-radius:12px; overflow:hidden;
+    .htb h2 em { color:var(--g); font-style:normal; }
+    .steps {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;
     }
-    .htb-step {
-      background:var(--card); padding:30px 24px;
-      transition:background 0.2s;
+    .step {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:12px; padding:28px 24px;
+      transition:transform 0.2s, border-color 0.2s;
     }
-    .htb-step:hover { background:#181818; }
-    .htb-num {
-      font-family:'Bebas Neue',sans-serif;
-      font-size:3rem; color:#222; line-height:1; margin-bottom:12px;
+    .step:hover { transform:translateY(-4px); border-color:var(--g); }
+    .sn {
+      font-family:'Press Start 2P',monospace; font-size:2rem;
+      color:rgba(0,255,106,0.1); margin-bottom:14px; line-height:1;
     }
-    .htb-step h3 { font-size:0.9rem; color:var(--g); margin-bottom:8px; letter-spacing:1px; }
-    .htb-step p  { font-size:0.82rem; color:#555; line-height:1.7; }
+    .step h3 { font-size:0.8rem; color:var(--g); margin-bottom:8px; }
+    .step p  { font-size:0.82rem; color:#555; line-height:1.7; }
 
     /* ── CA ── */
-    .ca-section {
-      max-width:900px; margin:0 auto 80px; padding:0 40px;
-    }
+    .ca-wrap { max-width:1100px; margin:0 auto; padding:0 40px 60px; }
     .ca-box {
-      background:var(--card);
-      border:1px solid #2a2a00;
-      border-radius:10px; padding:28px 32px;
-      display:flex; align-items:center;
-      justify-content:space-between; gap:16px; flex-wrap:wrap;
-      box-shadow:0 0 60px rgba(200,255,0,0.03);
+      background:var(--card); border:1px solid rgba(0,255,106,0.25);
+      border-radius:12px; padding:26px 30px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px; flex-wrap:wrap;
     }
-    .ca-lbl { font-size:0.65rem; letter-spacing:3px; color:#444; margin-bottom:4px; }
-    .ca-addr { font-family:monospace; font-size:0.9rem; color:var(--g); word-break:break-all; }
-    .ca-copy {
+    .calbl { font-size:0.6rem; color:#444; letter-spacing:2px; margin-bottom:4px; }
+    .caaddr { font-family:monospace; font-size:0.9rem; color:var(--g); word-break:break-all; }
+    .cabtn {
       background:var(--g); color:#000; border:none;
-      padding:10px 24px; border-radius:6px;
-      font-weight:700; font-size:0.78rem; cursor:pointer;
-      letter-spacing:2px; text-transform:uppercase;
-      transition:transform 0.15s; white-space:nowrap;
+      font-family:'Press Start 2P',monospace;
+      font-size:0.55rem; padding:12px 20px; border-radius:8px;
+      cursor:pointer; white-space:nowrap; transition:transform 0.2s;
     }
-    .ca-copy:hover { transform:scale(1.05); }
+    .cabtn:hover { transform:scale(1.05); }
 
-    /* ── FINAL SCREEN ── */
-    .endscreen {
+    /* ── ENDSCREEN ── */
+    .end {
       border-top:1px solid var(--border);
-      padding:120px 20px;
-      text-align:center; position:relative; overflow:hidden;
+      padding:100px 20px; text-align:center; position:relative; overflow:hidden;
     }
-    .endscreen::before {
-      content:'';
-      position:absolute; inset:0;
-      background:radial-gradient(ellipse 60% 50% at 50% 50%, rgba(200,255,0,0.04) 0%, transparent 70%);
+    .end::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,255,106,0.04) 0%, transparent 70%);
       pointer-events:none;
     }
-    .endscreen-label {
-      font-size:0.7rem; letter-spacing:5px; color:#444;
-      text-transform:uppercase; margin-bottom:20px;
+    .end-tag { font-size:0.6rem; letter-spacing:4px; color:#333; text-transform:uppercase; margin-bottom:20px; font-family:'Press Start 2P',monospace; }
+    .end h2 {
+      font-family:'Press Start 2P',monospace;
+      font-size:clamp(1.2rem,3.5vw,2.5rem);
+      letter-spacing:4px; line-height:1.4; margin-bottom:20px;
     }
-    .endscreen h2 {
-      font-family:'Bebas Neue',sans-serif;
-      font-size:clamp(3rem,9vw,7rem);
-      letter-spacing:4px; line-height:0.9;
-      margin-bottom:30px;
-    }
-    .endscreen h2 .dim { color:#222; display:block; }
-    .endscreen h2 .bright { color:#fff; display:block; }
-    .endscreen h2 .acid { color:var(--g); display:block; }
-    .endscreen p { color:#444; font-size:0.9rem; margin-bottom:36px; }
+    .end h2 em { color:var(--g); font-style:normal; }
+    .end p { color:#444; font-size:0.85rem; margin-bottom:32px; }
 
     /* ── FOOTER ── */
     footer {
       border-top:1px solid var(--border);
-      padding:40px 60px;
-      display:flex; align-items:center; justify-content:space-between;
-      flex-wrap:wrap; gap:20px;
-      color:#333; font-size:0.78rem;
+      padding:30px 48px;
+      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
     }
-    .footer-logo {
-      font-family:'Bebas Neue',sans-serif;
-      font-size:1.4rem; letter-spacing:6px; color:#2a2a2a;
-    }
-    .footer-links { display:flex; gap:24px; }
-    .footer-links a { color:#333; text-decoration:none; letter-spacing:1px; transition:color 0.2s; }
-    .footer-links a:hover { color:var(--g); }
-    .footer-copy { color:#2a2a2a; }
+    .flogo { font-family:'Press Start 2P',monospace; font-size:0.8rem; color:#222; letter-spacing:4px; }
+    .flinks { display:flex; gap:24px; }
+    .flinks a { color:#333; text-decoration:none; font-size:0.78rem; letter-spacing:1px; transition:color 0.2s; }
+    .flinks a:hover { color:var(--g); }
+    .fdisclaim { color:#222; font-size:0.72rem; }
 
-    @media(max-width:800px){
+    @media(max-width:900px){
+      .hero { grid-template-columns:1fr; }
+      .hero-left { border-right:none; border-bottom:1px solid var(--border); padding:60px 24px; }
+      .hero-right { padding:60px 24px; }
+      .lore-wrap { grid-template-columns:1fr; padding:60px 24px; }
+      .lore-left { position:static; }
+      .stats { grid-template-columns:repeat(2,1fr); }
       nav { padding:16px 20px; }
       .nav-links { display:none; }
-      .nostalgia { grid-template-columns:1fr; padding:60px 20px; gap:40px; }
-      .stats-row { grid-template-columns:repeat(2,1fr); }
-      .htb { padding:60px 20px; }
-      .ca-section { padding:0 20px; }
-      footer { padding:30px 20px; flex-direction:column; align-items:flex-start; }
+      .htb { padding:60px 24px; }
+      .ca-wrap { padding:0 24px 60px; }
+      footer { padding:24px; flex-direction:column; align-items:flex-start; }
     }
   </style>
 </head>
@@ -433,216 +456,254 @@
 
 <!-- INTRO -->
 <div id="intro">
-  <div class="intro-rec">
-    <div class="intro-rec-dot"></div>
-    <span>rec</span>
+  <div class="intro-rec"><div class="rdot"></div> rec</div>
+  <div class="intro-circle">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="#00ff6a"><polygon points="5,3 19,12 5,21"/></svg>
   </div>
-  <div class="intro-play-circle">
-    <svg width="50" height="50" viewBox="0 0 24 24" fill="#c8ff00">
-      <polygon points="5,3 19,12 5,21"/>
-    </svg>
-  </div>
-  <div class="intro-tagline">THE LAST <span>PLAY</span></div>
-  <div class="intro-loading">
-    loading stream <span class="intro-dots"><span>.</span><span>.</span><span>.</span></span>
-  </div>
+  <div class="intro-name">LAST PLAY</div>
+  <div class="intro-ticker-line">$LP — stream loading</div>
+  <div class="ibar"><div class="ibar-fill"></div></div>
 </div>
 
 <!-- MAIN -->
 <div id="main">
 
+  <!-- TOP TICKER BAR -->
+  <div class="top-ticker">
+    <div class="tt-label">$LP</div>
+    <div class="tt-scroll">
+      <span class="tt-inner">
+        <span class="hi">LAST PLAY</span> <span style="margin:0 16px;color:#1a1a2e">•</span>
+        $LP ON SOLANA <span style="margin:0 16px;color:#1a1a2e">•</span>
+        <span class="hi">NO RESPAWNS</span> <span style="margin:0 16px;color:#1a1a2e">•</span>
+        CHAT IS LIVE <span style="margin:0 16px;color:#1a1a2e">•</span>
+        <span class="hi">▶ PRESS PLAY</span> <span style="margin:0 16px;color:#1a1a2e">•</span>
+        THE FINAL RUN <span style="margin:0 16px;color:#1a1a2e">•</span>
+        <span class="hi">LAST PLAY</span> <span style="margin:0 16px;color:#1a1a2e">•</span>
+        $LP ON SOLANA <span style="margin:0 16px;color:#1a1a2e">•</span>
+        <span class="hi">NO RESPAWNS</span> <span style="margin:0 16px;color:#1a1a2e">•</span>
+        CHAT IS LIVE <span style="margin:0 16px;color:#1a1a2e">•</span>
+        <span class="hi">▶ PRESS PLAY</span> <span style="margin:0 16px;color:#1a1a2e">•</span>
+        THE FINAL RUN <span style="margin:0 16px;color:#1a1a2e">•</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- NAV -->
   <nav>
-    <div class="nav-logo">$LPLAY</div>
+    <div class="nav-logo">LAST <span>PLAY</span></div>
     <ul class="nav-links">
       <li><a href="#lore">Lore</a></li>
       <li><a href="#buy">Buy</a></li>
     </ul>
-    <a href="#buy" class="nav-buy">Buy $LPLAY</a>
+    <a href="#buy" class="nav-cta">▶ Buy $LP</a>
   </nav>
 
-  <!-- HERO -->
+  <!-- HERO — 2 col -->
   <section class="hero">
 
-    <div class="hero-top-label">
-      <span class="dot-live"></span>
-      <span class="live-text">LIVE</span>
-      <span>— Stream in Progress</span>
+    <!-- LEFT: text -->
+    <div class="hero-left">
+      <div class="live-badge"><span class="ldot"></span> LIVE — Last Play in Progress</div>
+
+      <div class="hero-hook">
+        <em>you know when you watched</em><br/>
+        <strong>let's plays</strong> <em>as a kid?</em><br/>
+        <em>now you gonna watch</em><br/>
+        <strong>the last play</strong> <em>unfold.</em>
+      </div>
+
+      <h1 class="hero-h1">
+        <span class="last">LAST</span>
+        <span class="play">PLAY</span>
+      </h1>
+
+      <!-- running text line between title and desc -->
+      <div class="hero-ticker-line">
+        <span class="htl-inner">
+          <span class="htl-hi">$LP</span> — LAST PLAY — NO RESPAWNS — CHAT GOING CRAZY —
+          <span class="htl-hi">$LP</span> — LAST PLAY — NO RESPAWNS — CHAT GOING CRAZY —
+          <span class="htl-hi">$LP</span> — LAST PLAY — NO RESPAWNS — CHAT GOING CRAZY —
+        </span>
+      </div>
+
+      <p class="hero-desc">
+        No tutorial. No second save. No respawn.<br/>
+        <strong>Just Pepe at the PC, making the last play.</strong><br/>
+        The stream is live and chat is moving fast.
+      </p>
+
+      <div class="hero-btns">
+        <a href="#buy" class="btn-p">▶ Buy $LP</a>
+        <a href="#lore" class="btn-o">The Lore</a>
+      </div>
     </div>
 
-    <!-- BIG PLAY BUTTON -->
-    <div class="play-wrap" onclick="document.getElementById('buy').scrollIntoView({behavior:'smooth'})">
-      <div class="play-outer">
-        <div class="play-ring"></div>
-        <div class="play-ring"></div>
-        <div class="play-ring"></div>
-        <div class="play-btn-main">
-          <svg width="60" height="60" viewBox="0 0 24 24" fill="#000">
-            <polygon points="5,3 19,12 5,21"/>
-          </svg>
+    <!-- RIGHT: play button -->
+    <div class="hero-right">
+      <!-- floating chat -->
+      <div class="chat-float" aria-hidden="true">
+        <div class="cf" style="left:8%;animation-duration:17s;animation-delay:0s">LETSGO 🔥🔥🔥</div>
+        <div class="cf" style="left:60%;animation-duration:21s;animation-delay:3s">chat is this real??</div>
+        <div class="cf" style="left:75%;animation-duration:15s;animation-delay:1s">W W W W W W</div>
+        <div class="cf" style="left:20%;animation-duration:19s;animation-delay:6s">🐸🐸🐸🐸🐸</div>
+        <div class="cf" style="left:45%;animation-duration:23s;animation-delay:9s">first play i actually own</div>
+        <div class="cf" style="left:85%;animation-duration:18s;animation-delay:4s">HE'S PLAYING AGAIN</div>
+        <div class="cf" style="left:30%;animation-duration:20s;animation-delay:11s">chat moving fast 👀</div>
+      </div>
+
+      <div class="play-outer" onclick="document.getElementById('buy').scrollIntoView({behavior:'smooth'})">
+        <div class="p-ring"></div>
+        <div class="p-ring"></div>
+        <div class="p-ring"></div>
+        <div class="p-btn">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="#000"><polygon points="5,3 19,12 5,21"/></svg>
         </div>
       </div>
-    </div>
-
-    <!-- TEXT BELOW BUTTON -->
-    <div class="hero-text-wrap">
-      <div class="hero-eyeline">
-        <em>you know when you watched</em> let's plays? —
-      </div>
-      <h1 class="hero-h1">
-        <span class="w1">LAST</span>
-        <span class="w2">PLAY</span>
-        <span class="w3">COIN</span>
-      </h1>
-      <p class="hero-desc">
-        Now you gonna watch <strong>the last play unfold.</strong><br/>
-        No tutorial. No respawn. Just the final run.
-      </p>
-      <div class="hero-cta">
-        <a href="#buy" class="btn-g">▶ Buy $LPLAY</a>
-        <a href="#lore" class="btn-ghost">The Lore</a>
-      </div>
+      <div class="play-label">press to <em>buy $LP</em></div>
     </div>
 
   </section>
 
-  <!-- MARQUEE -->
-  <div class="marquee-wrap">
-    <span class="marquee-inner">
-      <span class="highlight">▶ THE LAST PLAY</span> <span class="msep">—</span>
-      YOU REMEMBER LET'S PLAYS <span class="msep">—</span>
-      <span class="highlight">$LPLAY ON SOLANA</span> <span class="msep">—</span>
-      CHAT IS GOING CRAZY <span class="msep">—</span>
-      <span class="highlight">NO RESPAWNS</span> <span class="msep">—</span>
-      PEPE IS PLAYING <span class="msep">—</span>
-      <span class="highlight">▶ THE LAST PLAY</span> <span class="msep">—</span>
-      YOU REMEMBER LET'S PLAYS <span class="msep">—</span>
-      <span class="highlight">$LPLAY ON SOLANA</span> <span class="msep">—</span>
-      CHAT IS GOING CRAZY <span class="msep">—</span>
-      <span class="highlight">NO RESPAWNS</span> <span class="msep">—</span>
-      PEPE IS PLAYING <span class="msep">—</span>
+  <!-- RUNNING TEXT LINE full width -->
+  <div class="run-line">
+    <span class="rl-inner">
+      <span class="rl-hi">▶ LAST PLAY</span> <span class="rl-sep">—</span>
+      $LP ON SOLANA <span class="rl-sep">—</span>
+      <span class="rl-hi">YOU USED TO WATCH</span> <span class="rl-sep">—</span>
+      NOW YOU OWN IT <span class="rl-sep">—</span>
+      <span class="rl-hi">NO RESPAWNS</span> <span class="rl-sep">—</span>
+      THE FINAL RUN <span class="rl-sep">—</span>
+      <span class="rl-hi">PEPE IS PLAYING</span> <span class="rl-sep">—</span>
+      CHAT IS LIVE <span class="rl-sep">—</span>
+      <span class="rl-hi">▶ LAST PLAY</span> <span class="rl-sep">—</span>
+      $LP ON SOLANA <span class="rl-sep">—</span>
+      <span class="rl-hi">YOU USED TO WATCH</span> <span class="rl-sep">—</span>
+      NOW YOU OWN IT <span class="rl-sep">—</span>
+      <span class="rl-hi">NO RESPAWNS</span> <span class="rl-sep">—</span>
+      THE FINAL RUN <span class="rl-sep">—</span>
+      <span class="rl-hi">PEPE IS PLAYING</span> <span class="rl-sep">—</span>
+      CHAT IS LIVE <span class="rl-sep">—</span>
     </span>
   </div>
 
-  <!-- NOSTALGIA SECTION -->
-  <section class="nostalgia" id="lore">
-    <div class="nostalgia-left">
-      <h2>
-        <span class="dim">You used to</span><br/>
-        <span class="bright">watch the plays.</span><br/>
-        <span class="accent">Now you own one.</span>
-      </h2>
+  <!-- STATS -->
+  <div class="stats-wrap">
+    <div class="stats">
+      <div class="stat"><div class="snum">1B</div><div class="slbl">Supply</div></div>
+      <div class="stat"><div class="snum">0%</div><div class="slbl">Tax</div></div>
+      <div class="stat"><div class="snum">🔥</div><div class="slbl">LP Burned</div></div>
+      <div class="stat"><div class="snum">🔒</div><div class="slbl">Renounced</div></div>
+    </div>
+  </div>
+
+  <!-- LORE -->
+  <section class="lore-wrap" id="lore">
+    <div class="lore-left">
+      <div class="section-tag">📺 The Lore</div>
+      <h2>You watched.<br/><em>Now you play.</em></h2>
       <p>
-        Remember staying up late watching someone else play?<br/><br/>
-        <strong>This time you're not watching.</strong> You're in the game.
-        $LPLAY is the last play — and the stream is live right now.
+        Remember staying up late watching someone else's screen?<br/><br/>
+        Subscribing. Liking. Closing the tab.<br/><br/>
+        <strong>This time you're not watching.</strong> You hold $LP. You're in the game now. This is the last play — and the stream is live.
       </p>
     </div>
-
-    <div class="nostalgia-right">
-      <div class="then-now">
-        <div class="tn-card then">
-          <div class="tn-label">Then</div>
-          <div class="tn-text">Watching someone else play at 2am wondering if you missed your shot</div>
-        </div>
-        <div class="tn-card now">
-          <div class="tn-label">Now</div>
-          <div class="tn-text">You hold $LPLAY. You're in the game. This is your play to make.</div>
+    <div class="lore-right" id="lore">
+      <div class="chat-msg">
+        <div class="av">👦</div>
+        <div class="bubble">
+          <div class="bname">viewer_2009</div>
+          <div class="btext">bro remember staying up till 3am watching let's plays? those were the days fr</div>
         </div>
       </div>
-      <div class="then-now">
-        <div class="tn-card then">
-          <div class="tn-label">Then</div>
-          <div class="tn-text">Subscribed to the channel. Left a like. Closed the tab.</div>
+      <div class="chat-msg r">
+        <div class="av">🐸</div>
+        <div class="bubble">
+          <div class="bname">pepe_himself</div>
+          <div class="btext">i remember. <strong>now i'm the one playing.</strong></div>
         </div>
-        <div class="tn-card now">
-          <div class="tn-label">Now</div>
-          <div class="tn-text">You pressed play. You bought $LPLAY. The last play has started.</div>
+      </div>
+      <div class="chat-msg">
+        <div class="av">👀</div>
+        <div class="bubble">
+          <div class="bname">anon4829</div>
+          <div class="btext">wait is pepe actually doing this?? is this the last play??</div>
+        </div>
+      </div>
+      <div class="chat-msg r">
+        <div class="av">🐸</div>
+        <div class="bubble">
+          <div class="bname">pepe_himself</div>
+          <div class="btext"><strong>sit down. watch the screen.</strong> no reloads. no respawns. last play.</div>
+        </div>
+      </div>
+      <div class="chat-msg">
+        <div class="av">🔥</div>
+        <div class="bubble">
+          <div class="bname">chat</div>
+          <div class="btext">LETSGOOOOO 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- STATS -->
-  <div class="stats-row">
-    <div class="stat-item">
-      <div class="stat-num">1B</div>
-      <div class="stat-lbl">Supply</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">0%</div>
-      <div class="stat-lbl">Tax</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">🔥</div>
-      <div class="stat-lbl">LP Burned</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">🔒</div>
-      <div class="stat-lbl">Renounced</div>
-    </div>
-  </div>
-
   <!-- HOW TO BUY -->
   <div class="htb" id="buy">
-    <div class="section-label">▶ Press Start</div>
-    <h2>How to Buy</h2>
-    <div class="htb-grid">
-      <div class="htb-step">
-        <div class="htb-num">01</div>
+    <div class="section-tag">🎮 Press Start</div>
+    <h2>How to Buy <em>$LP</em></h2>
+    <div class="steps">
+      <div class="step">
+        <div class="sn">01</div>
         <h3>Get Phantom</h3>
-        <p>Download Phantom wallet. Store your seed phrase offline like it's the last save file you'll ever need.</p>
+        <p>Download Phantom wallet. Store your seed phrase offline — treat it like the last save file you'll ever have.</p>
       </div>
-      <div class="htb-step">
-        <div class="htb-num">02</div>
+      <div class="step">
+        <div class="sn">02</div>
         <h3>Get SOL</h3>
-        <p>Buy Solana on Coinbase or Binance. Send it to your Phantom. That's your starting inventory.</p>
+        <p>Buy Solana on Coinbase or Binance. Send it to Phantom. That's your starting inventory.</p>
       </div>
-      <div class="htb-step">
-        <div class="htb-num">03</div>
-        <h3>Go to Jupiter</h3>
-        <p>Open jup.ag, paste the $LPLAY contract address below, and swap. One click to join the play.</p>
+      <div class="step">
+        <div class="sn">03</div>
+        <h3>Swap on Jupiter</h3>
+        <p>Go to jup.ag, paste the $LP contract address, swap SOL. One click to enter the game.</p>
       </div>
-      <div class="htb-step">
-        <div class="htb-num">04</div>
-        <h3>Watch It Unfold</h3>
-        <p>You're in. The last play is live. No reloads, no second runs. Just hold and watch Pepe play. 🐸</p>
+      <div class="step">
+        <div class="sn">04</div>
+        <h3>Watch It Unfold 🐸</h3>
+        <p>You're in. The last play is live. No reloads, no second runs. Just hold and watch Pepe play.</p>
       </div>
     </div>
   </div>
 
   <!-- CA -->
-  <div class="ca-section">
+  <div class="ca-wrap">
     <div class="ca-box">
       <div>
-        <div class="ca-lbl">Contract Address</div>
-        <div class="ca-addr" id="ca-text">TBA — Contract Dropping Soon</div>
+        <div class="calbl">Contract Address</div>
+        <div class="caaddr" id="ca-text">TBA — Dropping Soon</div>
       </div>
-      <button class="ca-copy" onclick="copyCA()">Copy</button>
+      <button class="cabtn" onclick="copyCA()">Copy</button>
     </div>
   </div>
 
   <!-- END SCREEN -->
-  <div class="endscreen">
-    <div class="endscreen-label">● Game Over Screen</div>
-    <h2>
-      <span class="dim">Insert coin</span>
-      <span class="bright">to continue.</span>
-      <span class="acid">$LPLAY.</span>
-    </h2>
-    <p>The stream is live. The play has started. You either get in or watch someone else win.</p>
-    <a href="#buy" class="btn-g">▶ Get In Now</a>
+  <div class="end">
+    <div class="end-tag">● game over screen</div>
+    <h2>The stream is live.<br/><em>The play has started.</em></h2>
+    <p>You either get in or watch someone else win. Again.</p>
+    <a href="#buy" class="btn-p">▶ Get In Now</a>
   </div>
 
   <!-- FOOTER -->
   <footer>
-    <div class="footer-logo">$LPLAY</div>
-    <div class="footer-links">
+    <div class="flogo">$LP</div>
+    <div class="flinks">
       <a href="#">Twitter / X</a>
       <a href="#">Telegram</a>
       <a href="#">Dexscreener</a>
       <a href="#">Jupiter</a>
     </div>
-    <div class="footer-copy">Not financial advice. DYOR.</div>
+    <div class="fdisclaim">Not financial advice. DYOR.</div>
   </footer>
 
 </div>
@@ -650,14 +711,13 @@
 <script>
   function copyCA() {
     const ca = document.getElementById('ca-text').innerText;
-    if (ca.includes('TBA')) { alert('🐸 Contract dropping soon — stay tuned!'); return; }
+    if (ca.includes('TBA')) { alert('🐸 $LP contract dropping soon!'); return; }
     navigator.clipboard.writeText(ca).then(() => {
-      const btn = document.querySelector('.ca-copy');
-      btn.textContent = '✓ Copied';
-      setTimeout(() => btn.textContent = 'Copy', 2000);
+      const b = document.querySelector('.cabtn');
+      b.textContent = '✓ Copied';
+      setTimeout(() => b.textContent = 'Copy', 2000);
     });
   }
 </script>
-
 </body>
 </html>
